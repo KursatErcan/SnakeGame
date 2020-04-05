@@ -54,7 +54,7 @@ class SnakeGame : public AuxiliaryFunctions {
 		char map[HIGH][WIDTH];
 		int sy = HIGH / 2, sx = WIDTH / 2;
 		int sLength = 1;
-		
+		char key='w';
 		void setMap() {
 			for (int i = 0; i < HIGH; i++) {
 				for (int j = 0; j < WIDTH; j++) {
