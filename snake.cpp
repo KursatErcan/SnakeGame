@@ -9,8 +9,6 @@
 
 using namespace std;
 
-
-
 enum Direction
 {
 	d_Left = 1,
@@ -46,11 +44,10 @@ class AuxiliaryFunctions {//yardimci fonksiyonlar
 		void listenKey(char keys[]) {
 			for (int i = 0; i < 256; i++) keys[i] = char(GetAsyncKeyState(i) >> 8);
 		}
-		
 };
 class SnakeGame : public AuxiliaryFunctions {
 	private:
-		char snake = char(219); //yýlan
+		char snake = char(219); //yÃ½lan
 		char wall = char(219); //duvar
 		char feed = '@'; //yem
 		int feedx=1, feedy=1;
@@ -65,10 +62,10 @@ class SnakeGame : public AuxiliaryFunctions {
 					else map[i][j] = char(255);
 				}
 			}
-			for (int i = 0; i < sLength; i++) { //yýlaný sahneye yerleþtir
+			for (int i = 0; i < sLength; i++) { //yÃ½lanÃ½ sahneye yerleÃ¾tir
 				map[snakeTail[i].y][snakeTail[i].x] = snake;
 			}
-			map[feedy][feedx] = feed; //yemi sahneye yerleþtir
+			map[feedy][feedx] = feed; //yemi sahneye yerleÃ¾tir
 		}
 		void drawMap() {
 			for (int i = 0; i < HIGH; i++) {
@@ -167,7 +164,6 @@ class SnakeGame : public AuxiliaryFunctions {
 			}
 		}
 		
-		
 public:
 	void play() {
 		hideCursor();
@@ -188,7 +184,5 @@ int main() {
 	SnakeGame game;
 	game.play();
 	
-
 	return 0;
 }
-
