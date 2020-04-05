@@ -127,31 +127,33 @@ class SnakeGame : public AuxiliaryFunctions {
 			}
 		}
 		void move() {
-			int x = snakeTail[0].x;
-			int y = snakeTail[0].y;
-			Direction d = snakeTail[0].direction;
-			char key = _getch();
-			
+			if (_kbhit()) {
+				key = _getch();
+			}
 			switch (key) {
 			case 'w':
 			case 'W':
 				snakeTail[0].y--;
 				snakeTail[0].direction = d_Up;
+				key = 'w';
 				break;
 			case 's':
 			case 'S':
 				snakeTail[0].y++;
 				snakeTail[0].direction = d_Down;
+				key = 's';
 				break;
 			case 'a':
 			case 'A':
 				snakeTail[0].x--;
 				snakeTail[0].direction = d_Left;
+				key = 'a';
 				break;
 			case 'd':
 			case 'D':
 				snakeTail[0].x++;
 				snakeTail[0].direction = d_Right;
+				key = 'd';
 				break;
 			}
 			isCaugth();
