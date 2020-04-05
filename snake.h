@@ -9,6 +9,9 @@
 
 using namespace std;
 
+int sLength = 0;
+bool game_over = false;
+
 enum Direction
 {
 	d_Left = 1,
@@ -22,39 +25,39 @@ struct Snake {
 	Direction direction;
 }snakeTail[MAX_SNAKE_LENGTH];
 
-class AuxiliaryFunctions {//yardimci fonksiyonlar
-	public:
-		char keys[256];
+void gotoXY(int x, int y) {
+	COORD coord;
+	coord.X = x;
+	coord.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+void hideCursor()      // ekranda surekli cikan kursoru kapatir  
+{
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO    cursorInfo;
 
-		void gotoXY(int x, int y) {
-			COORD coord;
-			coord.X = x;
-			coord.Y = y;
-			SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-		}
-		void hideCursor()      // ekranda surekli cikan kursoru kapatir  
-		{
-			HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-			CONSOLE_CURSOR_INFO    cursorInfo;
+	GetConsoleCursorInfo(out, &cursorInfo);
+	cursorInfo.bVisible = false;
+	SetConsoleCursorInfo(out, &cursorInfo);
+}
 
-			GetConsoleCursorInfo(out, &cursorInfo);
-			cursorInfo.bVisible = false;
-			SetConsoleCursorInfo(out, &cursorInfo);
-		}
-		void listenKey(char keys[]) {
-			for (int i = 0; i < 256; i++) keys[i] = char(GetAsyncKeyState(i) >> 8);
-		}
-};
-class SnakeGame : public AuxiliaryFunctions {
+class SnakeGame {
 	private:
-		char snake = char(219); //yýlan
-		char wall = char(219); //duvar
-		char feed = '@'; //yem
-		int feedx=1, feedy=1;
+		char snake, wall, feed;
+		int feedx, feedy, sy, sx;
+		int score;
+		char key;
 		char map[HIGH][WIDTH];
-		int sy = HIGH / 2, sx = WIDTH / 2;
-		int sLength = 1;
-		char key='w';
+
+		void setup() {
+			snake = char(219); //yılan
+			wall = char(219); //duvar
+			feed = '@'; //yem
+			feedx = 1, feedy = 1;
+			sy = HIGH / 2, sx = WIDTH / 2;
+			key;
+			score = 0;
+		}
 		void setMap() {
 			for (int i = 0; i < HIGH; i++) {
 				for (int j = 0; j < WIDTH; j++) {
@@ -68,6 +71,9 @@ class SnakeGame : public AuxiliaryFunctions {
 			map[feedy][feedx] = feed; //yemi sahneye yerleþtir
 		}
 		void drawMap() {
+			gotoXY(0, 0);
+			clearMap();
+			setMap();
 			for (int i = 0; i < HIGH; i++) {
 				for (int j = 0; j < WIDTH; j++) {
 					cout<<map[i][j] ;
@@ -82,19 +88,28 @@ class SnakeGame : public AuxiliaryFunctions {
 				}
 			}
 		}
-		bool wallControl(int x,int y) {
-			if (map[y][x] != wall) return true;
-			else if (map[y][x] = wall)return false;
+		void hitControl() {
+			if (snakeTail[0].y != 0 && snakeTail[0].y != HIGH - 1 && snakeTail[0].x != 0 && snakeTail[0].x != WIDTH - 1) game_over = false;
+			else true;
+			if (!game_over) {
+			for (int i = 2; i < sLength; i++) {
+				if (snakeTail[0].y == snakeTail[i].y && snakeTail[0].x == snakeTail[i].x) {
+					game_over = true;
+					break;
+					}
+				}
+			}
 		}
 		void produceFeedCoord() {
 			srand(time(0));
-			do {
-				feedx = (rand() % WIDTH) + 1;
-				feedy = (rand() % HIGH) + 1;
-				if (feedx > WIDTH || feedy > HIGH) continue;
-			} while (map[feedy][feedx] == snake && map[feedy][feedx] == wall);
+			while (true) {
+				feedx = ((rand() + WIDTH) % (WIDTH - 1)) + 1;
+				feedy = ((rand() + HIGH) % (HIGH - 1)) + 1;
+				if (map[feedy][feedx] != snake && (feedx<WIDTH-1 || feedy<HIGH-1)) break;
+			}
 		}
 		void createSnake() {
+			sLength = 1;
 			snakeTail[0].x = sx;
 			snakeTail[0].y = sy;
 			snakeTail[0].direction = d_Up;
@@ -106,7 +121,7 @@ class SnakeGame : public AuxiliaryFunctions {
 				snakeTail[i].direction = snakeTail[i - 1].direction;
 			}
 		}
-		void add() {
+		void addTail() {
 			sLength++;
 			snakeTail[sLength - 1].x = snakeTail[sLength - 2].x;
 			snakeTail[sLength - 1].y = snakeTail[sLength - 2].y;
@@ -155,13 +170,32 @@ class SnakeGame : public AuxiliaryFunctions {
 				snakeTail[0].direction = d_Right;
 				key = 'd';
 				break;
+			default:
+				switch (snakeTail[0].direction) {
+				case d_Up:
+					snakeTail[0].y -= 1;
+					break;
+				case d_Down:
+					snakeTail[0].y += 1;
+					break;
+				case d_Right:
+					snakeTail[0].x += 1;
+					break;
+				case d_Left:
+					snakeTail[0].x -= 1;
+					break;
+				}
+				break;
 			}
+			if (snakeTail[0].x >= WIDTH) snakeTail[0].x = 0; else if (snakeTail[0].x < 0) snakeTail[0].x = WIDTH - 1;
+			if (snakeTail[0].y >= HIGH) snakeTail[0].y = 0; else if (snakeTail[0].y < 0) snakeTail[0].y = HIGH - 1;
+			hitControl();
 			isCaugth();
 			animationTail();
 		}
 		void isCaugth() {
 			if (snakeTail[0].x == feedx && snakeTail[0].y == feedy) {
-				add();
+				addTail();
 				produceFeedCoord();	
 			}
 		}
@@ -169,22 +203,18 @@ class SnakeGame : public AuxiliaryFunctions {
 public:
 	void play() {
 		hideCursor();
+		setup();
 		createSnake();
 		produceFeedCoord();
-		while (true) {
-			gotoXY(0, 0);
-			clearMap();
-			setMap();
+		while (!game_over) {
+			Sleep(25);
 			drawMap();
 			move();
 		}
+		system("CLS");
+		cout << endl << endl << " GAME OVER ";
+		char a = _getch();
 	}
 };
 
-int main() {
-	
-	SnakeGame game;
-	game.play();
-	
-	return 0;
-}
+
