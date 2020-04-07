@@ -1,9 +1,10 @@
 #include<iostream>
 #include "snake.h"
+#include "Windows.h"
 
 int main(){
-	SnakeGame game;
-	game.play();
+	Window window;
+	window.mainMenu();
 
 	return 0;
 }
